@@ -1,0 +1,8 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Condition Practice
+
+Parameters:
+  MyKeyName: 
+    Description: Select Key name
+    Type: AWS::EC2::KeyPair::KeyName
+  Evei
