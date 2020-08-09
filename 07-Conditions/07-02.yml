@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Condition Practice
+Description: Conditions Practice
 
 Parameters:
   MyKeyName:
-    Description: Select Key name
+    Description: Select Key Name
     Type: AWS::EC2::KeyPair::KeyName
   EnvironmentName:
     Description: Select the environment
@@ -12,7 +12,7 @@ Parameters:
     AllowedValues:
       - dev
       - prod
-    ConstraintDescription: must be devlopment of production
+    ConstraintDescription: Must be development or Production
 
 Mappings:
   MyRegionMap:
@@ -29,6 +29,7 @@ Mappings:
 
 Conditions:
   CreateEIPForProd: !Equals [!Ref EnvironmentName, prod]
+  CreateDevSecurityGroup: !Equals [!Ref EnvironmentName, dev]
 
 Resources:
   MyVMInstance:
@@ -38,14 +39,31 @@ Resources:
         - MyRegionMap
         - !Ref AWS::Region
         - HVM64
-
       InstanceType: !FindInMap
         - MyEnvironmentMap
         - !Ref EnvironmentName
         - instanceType
       KeyName: !Ref MyKeyName
+      SecurityGroups:
+        !If [
+          CreateDevSecurityGroup,
+          [!Ref DevEnvSecurityGroup],
+          !Ref AWS::NoValue,
+        ]
+
   MyProdEIP:
     Type: AWS::EC2::EIP
     Condition: CreateEIPForProd
     Properties:
       InstanceId: !Ref MyVMInstance
+
+  DevEnvSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: CreateDevSecurityGroup
+    Properties:
+      GroupDescription: DevSG
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: '0.0.0.0/0'
