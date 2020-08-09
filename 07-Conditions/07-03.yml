@@ -4,7 +4,7 @@ Description: Condition Practice
 Parameters:
   MyKeyName:
     Description: Select a Key
-    Type: AWS::EC2::KeyPair::MyKeyName
+    Type: AWS::EC2::KeyPair::KeyName
   EnvironmentName:
     Description: Select the environment
     Type: String
@@ -27,7 +27,7 @@ Mappings:
       instanceType: t2.small
 
 Conditions:
-  CreateEIPForProd: !Equals [!Ref EvironmentName, prod]
+  CreateEIPForProd: !Equals [!Ref EnvironmentName, prod]
   CreateDevSecurityGroup: !Equals [!Ref EnvironmentName, dev]
   CreateProdSecurityGroup: !Equals [!Ref EnvironmentName, prod]
 
@@ -41,7 +41,7 @@ Resources:
         - HVM64
       InstanceType: !FindInMap
         - MyEnvironmentMap
-        - !Ref MyEnvironmentMap
+        - !Ref EnvironmentName
         - instanceType
       KeyName: !Ref MyKeyName
       SecurityGroups:
